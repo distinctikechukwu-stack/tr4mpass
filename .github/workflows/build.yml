@@ -1,4 +1,4 @@
-name: Build Windows GUI Executable
+name: Build tr4mpass Executable
 
 on:
   push:
@@ -8,18 +8,32 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Install Missing Development Libraries
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          pkg-config \
+          libusb-1.0-0-dev \
+          libplist-dev \
+          libssl-dev \
+          libssh2-1-dev \
+          libcurl4-openssl-dev \
+          libimobiledevice-dev \
+          libirecovery-1.0-dev || sudo apt-get install -y libirecovery-dev
+
     - name: Compile Application using Makefile
       run: |
-        mingw32-make
+        make
 
-    - name: Upload compiled EXE
+    - name: Upload compiled binary
       uses: actions/upload-artifact@v4
       with:
-        name: Windows-Desktop-App
-        path: ./*.exe
+        name: tr4mpass-Linux-App
+        path: ./tr4mpass
