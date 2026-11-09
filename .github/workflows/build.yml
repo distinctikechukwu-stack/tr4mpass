@@ -41,9 +41,9 @@ jobs:
 
     - name: Compile Application to Windows EXE
       run: |
-        # We append -I/usr/include to CFLAGS so the compiler finds plist.h and others
-        # We also define setenv as _putenv because Windows uses _putenv instead of setenv
-        make CC=x86_64-w64-mingw32-gcc CFLAGS="-I/usr/include -Dsetenv\(x,y,z\)=_putenv\(\x\)\=\(\y\)"
+        # Explicitly map all installed Linux library include locations to the Windows cross-compiler
+        # Also provide a fallback for setenv since Windows native binaries use _putenv
+        make CC=x86_64-w64-mingw32-gcc CFLAGS="-I/usr/include -I/usr/include/libusb-1.0 -I/usr/include/libplist -Dsetenv\(x,y,z\)=_putenv\(\x\)\=\(\y\)"
 
     - name: Upload compiled Windows EXE
       uses: actions/upload-artifact@v4
