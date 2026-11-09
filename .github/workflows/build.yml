@@ -1,4 +1,4 @@
-name: Build tr4mpass Executable
+name: Build tr4mpass Windows EXE
 
 on:
   push:
@@ -14,26 +14,21 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install Missing Development Libraries
+    - name: Install Build Tools & Windows Cross-Compiler
       run: |
         sudo apt-get update
         sudo apt-get install -y \
           build-essential \
           pkg-config \
-          libusb-1.0-0-dev \
-          libplist-dev \
-          libssl-dev \
-          libssh2-1-dev \
-          libcurl4-openssl-dev \
-          libimobiledevice-dev \
-          libirecovery-1.0-dev || sudo apt-get install -y libirecovery-dev
+          mingw-w64
 
-    - name: Compile Application using Makefile
+    - name: Compile Application to Windows EXE
       run: |
-        make
+        # This forces your Makefile to compile a Windows executable (.exe)
+        make CC=x86_64-w64-mingw32-gcc
 
-    - name: Upload compiled binary
+    - name: Upload compiled Windows EXE
       uses: actions/upload-artifact@v4
       with:
-        name: tr4mpass-Linux-App
-        path: ./tr4mpass
+        name: tr4mpass-Windows-App
+        path: ./*.exe
