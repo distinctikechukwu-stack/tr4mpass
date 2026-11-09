@@ -14,11 +14,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up GCC (MinGW)
-      uses: egor-tisin/setup-mingw@v2
-      with:
-        platform: x64
-
     - name: Compile Application using Makefile
       run: |
         mingw32-make
