@@ -37,14 +37,13 @@ jobs:
 
     - name: Bypass Broken Canary Test Block
       run: |
-        # This completely replaces the .chip-db-canary rule recipe with a dummy echo block
-        # It finds the target on line 85 and deletes its execution commands
         sed -i '/^\.chip-db-canary:/,/^$/c\.chip-db-canary:\n\t@echo "Skipped broken test canary entirely"' Makefile
 
     - name: Compile Application to Windows EXE
       run: |
-        # Run make pointing to the cross-compiler
-        make CC=x86_64-w64-mingw32-gcc
+        # We append -I/usr/include to CFLAGS so the compiler finds plist.h and others
+        # We also define setenv as _putenv because Windows uses _putenv instead of setenv
+        make CC=x86_64-w64-mingw32-gcc CFLAGS="-I/usr/include -Dsetenv\(x,y,z\)=_putenv\(\x\)\=\(\y\)"
 
     - name: Upload compiled Windows EXE
       uses: actions/upload-artifact@v4
