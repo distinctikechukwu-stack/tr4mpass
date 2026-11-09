@@ -41,10 +41,13 @@ jobs:
 
     - name: Compile Application to Windows EXE
       run: |
-        # Explicitly map all installed Linux library include locations to the Windows cross-compiler
-        # Also provide a fallback for setenv since Windows native binaries use _putenv
-        make CC=x86_64-w64-mingw32-gcc CFLAGS="-I/usr/include -I/usr/include/libusb-1.0 -I/usr/include/libplist -Dsetenv\(x,y,z\)=_putenv\(\x\)\=\(\y\)"
-
+        # Use pkg-config settings to map dependencies properly without polluting core C headers
+        export PKG_CONFIG_ALLOW_CROSS=1
+        export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig
+        
+        # Inject the Windows safe environment flag directly into the compilation loop
+        make CC=x86_64-w64-mingw32-gcc CFLAGS="-O2 -Wall -Wextra -Dsetenv\(x,y,z\)=_putenv\(\x\)\=\(\y\)"
+        
     - name: Upload compiled Windows EXE
       uses: actions/upload-artifact@v4
       with:
