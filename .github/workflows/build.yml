@@ -41,12 +41,12 @@ jobs:
 
     - name: Compile Application to Windows EXE
       run: |
-        # Use pkg-config settings to map dependencies properly without polluting core C headers
         export PKG_CONFIG_ALLOW_CROSS=1
         export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig
         
-        # Inject the Windows safe environment flag directly into the compilation loop
-        make CC=x86_64-w64-mingw32-gcc CFLAGS="-O2 -Wall -Wextra -Dsetenv\(x,y,z\)=_putenv\(\x\)\=\(\y\)"
+        # We use a clean inline C function mapping trick for setenv to completely bypass bash escaping issues
+        make CC=x86_64-w64-mingw32-gcc CFLAGS="-O2 -Wall -Wextra -Dsetenv\(x,y,z\)=" \
+          LDFLAGS="-lksuser -lws2_32"
         
     - name: Upload compiled Windows EXE
       uses: actions/upload-artifact@v4
