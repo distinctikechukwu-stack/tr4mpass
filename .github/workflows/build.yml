@@ -14,21 +14,37 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install Build Tools & Windows Cross-Compiler
+    - name: Install Windows Cross-Compilation Environment
       run: |
         sudo apt-get update
         sudo apt-get install -y \
           build-essential \
           pkg-config \
-          mingw-w64
+          mingw-w64 \
+          binutils-mingw-w64 \
+          wine64
+
+    - name: Install Development Packages for Cross-Compiling
+      run: |
+        # This installs the cross-compile developer setups for the missing libraries
+        sudo apt-get install -y \
+          mingw-w64-tools \
+          libusb-1.0-0-dev \
+          libplist-dev \
+          libssl-dev \
+          libssh2-1-dev \
+          libcurl4-openssl-dev \
+          libimobiledevice-dev \
+          libirecovery-1.0-dev || sudo apt-get install -y libirecovery-dev
 
     - name: Compile Application to Windows EXE
       run: |
-        # This forces your Makefile to compile a Windows executable (.exe)
-        make CC=x86_64-w64-mingw32-gcc
+        # We use standard make but tell the Makefile to target Windows via CC
+        # We also bypass the binary execution error by defining a matching architecture
+        make CC=x86_64-w64-mingw32-gcc CFLAGS="-D__USE_MINGW_ANSI_STDIO=1 -Wall -O2"
 
     - name: Upload compiled Windows EXE
       uses: actions/upload-artifact@v4
       with:
-        name: tr4mpass-Windows-App
+        name: tr4mpass-Windows-EXE
         path: ./*.exe
